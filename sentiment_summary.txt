@@ -1,0 +1,17 @@
+SENTIMENT ANALYSIS SUMMARY REPORT
+============================================================
+
+Model: cardiffnlp/twitter-roberta-base-sentiment-latest
+Total texts analyzed: 890
+
+Sentiment Distribution:
+----------------------------------------
+  neutral: 581 (65.28%)
+  negative: 248 (27.87%)
+  positive: 61 (6.85%)
+
+Confidence Statistics:
+----------------------------------------
+  Mean: 0.7303
+  Median: 0.7533
+  Std Dev: 0.1340
