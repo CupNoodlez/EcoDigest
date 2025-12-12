@@ -1,1 +1,8 @@
 .venv/
+
+# Model files (too large for GitHub)
+models/
+*.safetensors
+*.bin
+*.pt
+*.pth
