@@ -38,7 +38,19 @@ This project contains three main notebooks:
 # - Run Advanced_Sentiment_Analytics.ipynb for deep text analysis
 ```
 
+## Model Files
+
+**Note:** Model files (~2GB) are excluded from this repository due to GitHub size limits.
+
+To use this project:
+1. **Train your own model**: Run `Model_Training.ipynb` to generate the model
+2. **Contact repository owner**: Request access to pre-trained models
+3. **Alternative**: The model is based on `cardiffnlp/twitter-roberta-base-sentiment` - fine-tune it yourself
+
+Models should be placed in:
+- `models/roberta-environmental-sentiment-best/` - Fine-tuned RoBERTa model
+
 ## Output Files
 
-- `models/roberta-environmental-sentiment-best/` - Fine-tuned RoBERTa model
+- `models/roberta-environmental-sentiment-best/` - Fine-tuned RoBERTa model (not in repo)
 - `predictions_with_metadata.csv` - Test set predictions with confidence scores and metadata (1,323 rows)
