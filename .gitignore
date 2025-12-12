@@ -1,1 +1,26 @@
 .venv/
+
+# Model checkpoints and training outputs
+models/
+*.pt
+*.bin
+*.ckpt
+*.pth
+
+# Training logs
+logs/
+
+# Large CSV files (optional - uncomment if you want to exclude data files)
+# *.csv
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
