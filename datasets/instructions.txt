@@ -8,10 +8,6 @@ Dataset: twitter_sentiment_data.csv
 
 remove or fix them.
 
-- waitwaitwait for this one
-2) Tag sentiments (-1 for negative, 0 for neutral, 1 for positive)
-> note: do these as separate tasks
-
 1-10K: @Reymel Sardenia 
 11-20K: @Lawrence Agarin
 21-30K: @Ken Satorre 
