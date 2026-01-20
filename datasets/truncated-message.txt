@@ -1,0 +1,10 @@
+Filter: Remove Unfinished/Truncated Phrases
+def is_unfinished(text):
+    text = str(text).strip()
+    # Remove if it ends with ellipsis (truncated)
+    if text.endswith('...') or text.endswith('…'):
+        return True
+    # Remove if it's too short (< 3 words)
+    if len(text.split()) < 3:
+        return True
+    return False
