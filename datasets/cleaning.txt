@@ -19,7 +19,7 @@ Deduplication:
 
 Identify and remove duplicate rows based on the message content, keeping only the first instance of each unique post.
 
-Semantic Semantic Filtering:
+Semantic Filtering:
 
 Analyze the intent of each row.
 
@@ -32,5 +32,7 @@ Formatting:
 Return the final result as a clean CSV code block.
 
 Ensure columns are preserved
+
+Enclosed all cleaned message with quotes
 
 Trim any leading or trailing whitespace from the cleaned messages.
