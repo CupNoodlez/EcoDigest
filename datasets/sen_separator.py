@@ -45,12 +45,6 @@ def split_sentiment_csv(input_filename):
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
 
-# Example usage:
-# You can change 'input_tweets.csv' to whatever your actual file name is.
 if __name__ == "__main__":
-    # If you want to run this from command line: python script.py yourfile.csv
-    if len(sys.argv) > 1:
-        split_sentiment_csv(sys.argv[1])
-    else:
-        # Default filename if none provided
-        split_sentiment_csv('input_tweets.csv')
+    input_file = input("Enter the input CSV filename: ")
+    split_sentiment_csv(input_file)
