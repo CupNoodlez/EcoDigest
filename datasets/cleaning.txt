@@ -1,11 +1,7 @@
-This is the prompt I used for generating a cleaned sample:
-I prompted gemini 3.0 thinking, in batches of 50 rows, from 1-500 and 1000-1100, 
-then further removed other rows that I think does not represent the author's sentiment/opinion
-
-The Master Cleaning & Analysis Prompt
 Task: Clean and filter a CSV dataset of social media posts for sentiment analysis.
 
-Input Data: [PASTE YOUR NEW DATASET HERE]
+Input Data:
+[PASTE YOUR NEW DATASET HERE]
 
 Please follow these steps in order:
 
@@ -23,7 +19,7 @@ Deduplication:
 
 Identify and remove duplicate rows based on the message content, keeping only the first instance of each unique post.
 
-Semantic Semantic Filtering:
+Semantic Filtering:
 
 Analyze the intent of each row.
 
@@ -35,6 +31,8 @@ Formatting:
 
 Return the final result as a clean CSV code block.
 
-Ensure columns are preserved: [Sentiment Score], "[Cleaned Message]", [ID].
+Ensure columns are preserved
+
+Enclosed all cleaned message with quotes
 
 Trim any leading or trailing whitespace from the cleaned messages.
