@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.express as px
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
+from climate_sentiment_pkg.classifier import ClimateSentimentClassifier
 
 # 1. Page Configuration
 st.set_page_config(
@@ -10,6 +11,14 @@ st.set_page_config(
     page_icon="🌍",
     layout="wide"
 )
+
+@st.cache_resource
+def get_classifier():
+    # This loads the model once and keeps it in memory
+    return ClimateSentimentClassifier()
+
+# Load the model quietly in the background
+classifier = get_classifier()
 
 # 2. Load Data
 @st.cache_data
@@ -153,3 +162,25 @@ st.subheader("Raw Data Explorer")
 # Display whatever columns we actually have
 cols_to_show = [c for c in ['predicted_sentiment', 'confidence', 'cleaned_message'] if c in df_filtered.columns]
 st.dataframe(df_filtered[cols_to_show].head(100))
+
+# --- NEW: SIDEBAR FOR LIVE ANALYSIS ---
+with st.sidebar:
+    st.header("🤖 Live Model Test")
+    st.write("Type a sentence to test the model in real-time:")
+    
+    user_input_text = st.text_area("Enter text here:", height=100)
+    
+    if st.button("Analyze Text"):
+        if user_input_text.strip():
+            with st.spinner("Analyzing..."):
+                result = classifier.predict(user_input_text)
+            
+            # Display Result
+            st.success(f"Sentiment: **{result['label']}**")
+            st.metric("Confidence", f"{result['confidence']:.1%}")
+            
+            # Show detailed scores if available
+            if 'details' in result:
+                st.json(result['details'])
+        else:
+            st.warning("Please enter some text first.")
