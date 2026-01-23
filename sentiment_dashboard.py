@@ -3,23 +3,59 @@ import pandas as pd
 import plotly.express as px
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
+import sys
+import os
+from pathlib import Path
 
-# 1. Page Configuration
+# 1. Page Configuration (MUST be the first Streamlit command)
 st.set_page_config(
     page_title="Public Perception Dashboard",
     page_icon="🌍",
     layout="wide"
 )
 
+# --- CRITICAL FIX: PATH SETUP ---
+current_dir = Path(__file__).resolve().parent
+
+# Add root dir to path to ensure we find the package
+if str(current_dir) not in sys.path:
+    sys.path.append(str(current_dir))
+
+# --- IMPORT MODEL ---
+try:
+    from climate_sentiment_pkg.classifier import ClimateSentimentClassifier
+except ImportError:
+    st.error(f"❌ Could not find 'climate_sentiment_pkg' package.")
+    st.stop()
+
+@st.cache_resource
+def get_classifier():
+    # Explicitly point to the local model folder
+    model_path = Path(__file__).resolve().parent / "Model_ROBERTA-Sentiment"
+    return ClimateSentimentClassifier(model_dir=str(model_path))
+
+# Load the model quietly
+try:
+    classifier = get_classifier()
+except Exception as e:
+    st.error(f"❌ Model failed to load. Error: {e}")
+    st.stop()
+
+
 # 2. Load Data
 @st.cache_data
 def load_data():
+    csv_file = "model_output.csv"
+    
+    # Check if file exists
+    if not os.path.exists(csv_file):
+        st.warning(f"⚠️ '{csv_file}' not found. Using placeholder data for demo.")
+        return pd.DataFrame({'cleaned_message': [], 'predicted_sentiment': [], 'confidence': []})
+
     try:
-        # Load the file
-        df = pd.read_csv("model_output.csv") # OR "model_output.csv"
+        df = pd.read_csv(csv_file)
         
         # --- AUTO-DETECT TEXT COLUMN ---
-        # We look for common names and rename the first match to 'cleaned_message'
         possible_names = ['cleaned_message', 'message', 'text', 'tweet', 'content']
         found_col = None
         for col in possible_names:
@@ -30,42 +66,51 @@ def load_data():
         if found_col:
             df = df.rename(columns={found_col: 'cleaned_message'})
         else:
-            st.error(f"❌ Error: Could not find a text column. Your file columns are: {list(df.columns)}")
+            st.error(f"❌ Error: Could not find a text column. Available: {list(df.columns)}")
             st.stop()
             
-        # Date Logic
-        if 'date' not in df.columns and 'tweetid' in df.columns:
-            df['timestamp'] = ((df['tweetid'] >> 22) + 1288834974657) / 1000
-            df['date'] = pd.to_datetime(df['timestamp'], unit='s')
+        # --- ROBUST DATE LOGIC ---
+        if 'date' in df.columns:
+            df['date'] = pd.to_datetime(df['date'], errors='coerce')
+        elif 'tweetid' in df.columns:
+            # Snowflake ID to Date conversion
+            try:
+                df['tweetid'] = pd.to_numeric(df['tweetid'], errors='coerce')
+                df = df.dropna(subset=['tweetid'])
+                df['timestamp'] = ((df['tweetid'].astype(int) >> 22) + 1288834974657) / 1000
+                df['date'] = pd.to_datetime(df['timestamp'], unit='s')
+            except Exception:
+                pass # Fail silently if IDs are bad
             
         return df
 
-    except FileNotFoundError:
-        st.error("File not found. Please make sure 'model_output.csv' exists.")
+    except Exception as e:
+        st.error(f"Error reading CSV: {e}")
         st.stop()
 
 df = load_data()
+
 
 # 3. Sidebar Filters
 st.sidebar.header("Filter Options")
 
 # Filter by Sentiment
 if 'predicted_sentiment' in df.columns:
+    all_sentiments = df['predicted_sentiment'].dropna().unique()
     sentiment_filter = st.sidebar.multiselect(
         "Select Sentiment:",
-        options=df['predicted_sentiment'].unique(),
-        default=df['predicted_sentiment'].unique()
+        options=all_sentiments,
+        default=all_sentiments
     )
-    # Apply Sentiment Filter
     df_filtered = df[df['predicted_sentiment'].isin(sentiment_filter)]
 else:
-    st.warning("Column 'predicted_sentiment' missing. Showing all data.")
     df_filtered = df
 
 # Filter by Confidence Score
 if 'confidence' in df.columns:
     min_confidence = st.sidebar.slider("Minimum Confidence Score:", 0.0, 1.0, 0.0)
     df_filtered = df_filtered[df_filtered['confidence'] >= min_confidence]
+
 
 # 4. Main Dashboard UI
 st.title("Environmental Policy Sentiment Dashboard")
@@ -79,10 +124,10 @@ if total_tweets > 0 and 'predicted_sentiment' in df.columns:
     pos_count = len(df_filtered[df_filtered['predicted_sentiment'] == 'Positive'])
     
     col1.metric("Total Opinions", f"{total_tweets:,}")
-    col2.metric("Negative Sentiment", f"{(neg_count/total_tweets)*100:.1f}%", delta_color="inverse")
+    col2.metric("Negative Sentiment", f"{(neg_count/total_tweets)*100:.1f}%")
     col3.metric("Positive Sentiment", f"{(pos_count/total_tweets)*100:.1f}%")
 else:
-    st.warning("No data available with current filters.")
+    st.info("No data available (check filters or CSV).")
 
 st.markdown("---")
 
@@ -92,8 +137,11 @@ c1, c2 = st.columns((2, 1))
 with c1:
     if 'predicted_sentiment' in df_filtered.columns and not df_filtered.empty:
         st.subheader("Sentiment Distribution")
+        counts = df_filtered['predicted_sentiment'].value_counts().reset_index()
+        counts.columns = ['predicted_sentiment', 'count']
+        
         fig_bar = px.bar(
-            df_filtered['predicted_sentiment'].value_counts().reset_index(),
+            counts,
             x='predicted_sentiment', 
             y='count',
             color='predicted_sentiment',
@@ -102,7 +150,7 @@ with c1:
         )
         st.plotly_chart(fig_bar, use_container_width=True)
 
-        if 'date' in df.columns:
+        if 'date' in df.columns and not df_filtered['date'].isna().all():
             st.subheader("Sentiment Over Time")
             daily_counts = df_filtered.groupby([pd.Grouper(key='date', freq='D'), 'predicted_sentiment']).size().reset_index(name='count')
             fig_line = px.line(
@@ -116,7 +164,7 @@ with c1:
 
 with c2:
     if 'predicted_sentiment' in df_filtered.columns and not df_filtered.empty:
-        st.subheader("Sentiment Composition")
+        st.subheader("Composition")
         fig_pie = px.pie(
             df_filtered, 
             names='predicted_sentiment',
@@ -127,29 +175,51 @@ with c2:
         st.plotly_chart(fig_pie, use_container_width=True)
 
     st.subheader("Word Cloud")
-    if st.button("Generate Word Cloud"):
-        if not df_filtered.empty:
-            # Combine all text
-            text = " ".join(str(review) for review in df_filtered.cleaned_message.dropna())
-            
-            if len(text.strip()) > 0:
-                # Create Cloud
+    if st.button("Generate Cloud"):
+        if not df_filtered.empty and 'cleaned_message' in df_filtered.columns:
+            text = " ".join(str(msg) for msg in df_filtered.cleaned_message.dropna())
+            if len(text) > 10:
                 wordcloud = WordCloud(width=800, height=400, background_color ='white').generate(text)
-                
-                # Plot
                 fig, ax = plt.subplots(figsize=(10, 5))
                 ax.imshow(wordcloud, interpolation='bilinear')
                 ax.axis("off")
                 st.pyplot(fig)
             else:
-                st.warning("Not enough text to generate a word cloud.")
+                st.warning("Not enough text data.")
         else:
             st.warning("No data selected.")
 
 # 6. Raw Data Explorer
 st.markdown("---")
 st.subheader("Raw Data Explorer")
+if not df_filtered.empty:
+    cols = [c for c in ['predicted_sentiment', 'confidence', 'cleaned_message'] if c in df_filtered.columns]
+    st.dataframe(df_filtered[cols].head(50))
 
-# Display whatever columns we actually have
-cols_to_show = [c for c in ['predicted_sentiment', 'confidence', 'cleaned_message'] if c in df_filtered.columns]
-st.dataframe(df_filtered[cols_to_show].head(100))
+# --- LIVE MODEL SIDEBAR ---
+with st.sidebar:
+    st.markdown("---")
+    st.header("🤖 Live Model Test")
+    st.write("Type a sentence to test the model:")
+    
+    user_input = st.text_area("Enter text:", height=100)
+    
+    if st.button("Analyze"):
+        if user_input.strip():
+            with st.spinner("Thinking..."):
+                res = classifier.predict(user_input)
+            
+            # Result Display
+            lbl = res['label']
+            if lbl == "Positive":
+                st.success(f"**{lbl}** ({res['confidence']:.1%})")
+            elif lbl == "Negative":
+                st.error(f"**{lbl}** ({res['confidence']:.1%})")
+            else:
+                st.info(f"**{lbl}** ({res['confidence']:.1%})")
+                
+            if 'details' in res:
+                with st.expander("Show Scores"):
+                    st.json(res['details'])
+        else:
+            st.warning("Please type something.")
