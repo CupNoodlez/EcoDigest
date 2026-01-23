@@ -25,3 +25,12 @@ __pycache__/
 
 # VS Code
 .vscode/
+
+# Ignore heavy model weights
+*.safetensors
+*.bin
+*.pt
+
+# Ignore the specific model folder contents (optional but safer)
+climate_sentiment_pkg/model_files/*
+!climate_sentiment_pkg/model_files/.gitkeep
