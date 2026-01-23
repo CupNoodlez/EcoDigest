@@ -67,7 +67,6 @@ pip install -r requirements.txt
 ```
 
 3. Ensure models are placed in the root directory (refer to the **Model Files** section in structure).
-
 ---
 
 ## 📚 Original Research & Training
@@ -75,3 +74,30 @@ The core models were developed and analyzed in the following notebooks:
 - `Model_Training.ipynb`: Original RoBERTa fine-tuning process.
 - `FLANT5-FT.ipynb`: Dataset preparation and fine-tuning for the summarization model.
 - `Advanced_Sentiment_Analytics.ipynb`: Initial exploration of keyword extraction and NER.
+
+## 🏢Team Members
+- Lawrence Agarin (lawrenceivanpagarin@iskolarngbayan.pup.edu.ph)
+- Kyle Desmond Co (kyledesmondpco@iskolarngbayan.pup.edu.ph)
+- Reymel Sardenia (reymelosardenia@iskolarngbayan.pup.edu.ph)
+- Ken Satorre (kencalvinssatorre@iskolarngbayan.pup.edu.ph)
+- Earl Andrei Fidel  (earlandreidfidel@iskolarngbayan.pup.edu.ph)
+
+**🖥️ Bachelor of Science in Computer Science**
+
+## 🏫 Special Thanks
+**Polytechnic University of the Philippines - Manila**  
+**Ria A. Sagum - Instructor (Natural Language Processing)** 
+
+
+## 🙏 Acknowledgements
+This project makes use of several open-source libraries and pre-trained models. We would like to acknowledge the contributions of the following:
+
+- **Hugging Face**: For the `transformers` library and hosting the model hub.
+- **Cardiff NLP**: For the base `twitter-roberta-base-sentiment` model.
+- **Google Research**: For the `FLAN-T5` architecture.
+- **Sentence Transformers**: For the `all-MiniLM-L6-v2` model used in semantic ranking.
+- **Streamlit**: For the interactive web application framework.
+- **Scientific Python Community**: Including the developers of PyTorch, Pandas, NumPy, and Scikit-learn.
+- **Public Sentiment Analysis on Climate Change (simran98solanki)**: for the Twitter Sentiment Dataset.
+
+
