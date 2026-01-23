@@ -1,5 +1,13 @@
-transformers
+streamlit
+pandas
+numpy
 torch
-datasets
+transformers
+sentence-transformers
 scikit-learn
+plotly
+wordcloud
+matplotlib
 sentencepiece
+accelerate
+safetensors

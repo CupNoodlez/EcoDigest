@@ -1,56 +1,77 @@
-# Summarized-Sentiment-Analyzer
+# 🧠 Sentiment & Consensus Analyzer
 
-## Notebooks
+A multi-stage NLP pipeline designed to analyze environmental sentiment and extract representative consensus from public comments. The project leverages fine-tuned transformer models for classification and summarization, combined with semantic clustering for representative insight extraction.
 
-This project contains three main notebooks:
+---
 
-1. **`Model_Training.ipynb`** - Fine-tune RoBERTa model for sentiment classification (3-class: Negative/Neutral/Positive)
-   - Complete training pipeline from data loading to model evaluation
-   - Saves trained model to `models/roberta-environmental-sentiment-best/`
-   - Generates `predictions_with_metadata.csv` for downstream analysis
-   - ~3 hours training time on 10K samples (CPU)
+## 🚀 Applications
 
-2. **`Sentiment_Analysis_Streamlined.ipynb`** - Quick sentiment analysis using trained model
-   - **Quick Mode**: Load pre-computed predictions instantly
-   - **Inference Mode**: Apply fine-tuned model to new data
-   - Interactive Plotly visualizations (temporal trends, platform comparison, geographic analysis)
-   - No training required
+### 1. Unified Sentiment & Consensus Analyzer
+**File:** `sentiment_summarizer_app.py`  
+The primary interactive tool. Input a list of raw comments and the AI will:
+1.  **Sentiment Analysis**: Classify each comment as Positive or Negative using a fine-tuned **RoBERTa** model.
+2.  **Centroid Ranking**: Identified the most representative "centroid" comments for each group using **MiniLM** embeddings.
+3.  **Consensus Summarization**: Generate a concise summary of the group's collective opinion using a fine-tuned **FLAN-T5** model.
 
-3. **`Advanced_Sentiment_Analytics.ipynb`** - Comprehensive text analytics
-   - Hashtag frequency analysis by sentiment
-   - Word clouds with sentiment-specific color schemes
-   - Named Entity Recognition (people, organizations, locations)
-   - Text preprocessing and lemmatization
-   - Keyword extraction using CountVectorizer
-   - Uses predictions from trained model (no training step)
-
-## Quick Start
-
-**Option 1: Train from scratch**
+**To Run:**
 ```bash
-# Run Model_Training.ipynb to train the model (takes ~3 hours)
+streamlit run sentiment_summarizer_app.py
 ```
 
-**Option 2: Use pre-trained model**
+### 2. Public Perception Dashboard
+**File:** `dashboard_app.py`  
+A visualization suite for large-scale batch analysis (requires `model_output.csv`).
+- Sentiment distribution and over-time trends.
+- Interactive Word Clouds and composición analysis.
+- Raw data explorer.
+
+**To Run:**
 ```bash
-# If you already have predictions_with_metadata.csv:
-# - Run Sentiment_Analysis_Streamlined.ipynb for quick visualizations
-# - Run Advanced_Sentiment_Analytics.ipynb for deep text analysis
+streamlit run dashboard_app.py
 ```
 
-## Model Files
+---
 
-**Note:** Model files (~2GB) are excluded from this repository due to GitHub size limits.
+## 🛠 Project Structure
 
-To use this project:
-1. **Train your own model**: Run `Model_Training.ipynb` to generate the model
-2. **Contact repository owner**: Request access to pre-trained models
-3. **Alternative**: The model is based on `cardiffnlp/twitter-roberta-base-sentiment` - fine-tune it yourself
+- `Model_ROBERTA-Sentiment/`: Fine-tuned model for environmental sentiment classification.
+- `Model_FLAN-T5/`: Fine-tuned model for high-fidelity summarization.
+- `utils.py`: Centralized logic for model loading and inference pipelines.
+- `datasets/`: Training and testing data, including the `summarization_dataset.csv` for sample testing.
+- `tests/`: Standalone CLI scripts for testing individual model performance (`test_sentiment.py`, `test_summ.py`).
+- `requirements.txt`: Full dependency list.
 
-Models should be placed in:
-- `models/roberta-environmental-sentiment-best/` - Fine-tuned RoBERTa model
+---
 
-## Output Files
+## 🧬 Scientific Pipeline
 
-- `models/roberta-environmental-sentiment-best/` - Fine-tuned RoBERTa model (not in repo)
-- `predictions_with_metadata.csv` - Test set predictions with confidence scores and metadata (1,323 rows)
+1.  **Sentiment Classification**: Based on `cardiffnlp/twitter-roberta-base-sentiment`, fine-tuned on climate-specific datasets.
+2.  **Ranking (Centroid)**: Uses `all-MiniLM-L6-v2` to vectorize comments. We calculate the mean vector (centroid) of each cluster and select the top $k$ comments with the highest cosine similarity to the centroid.
+3.  **Summarization**: A sequence-to-sequence model (FLAN-T5) fine-tuned with specific prompts:
+    - *Positive:* "Summarize the opinions of users who believe in the reality of climate change.:"
+    - *Negative:* "Summarize the opinions of users who skeptical of/deny climate change.:"
+
+---
+
+## 📋 Installation
+
+1. Create and activate a environment (Conda or venv):
+```bash
+conda create -n sentiment-analysis python=3.12
+conda activate sentiment-analysis
+```
+
+2. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+3. Ensure models are placed in the root directory (refer to the **Model Files** section in structure).
+
+---
+
+## 📚 Original Research & Training
+The core models were developed and analyzed in the following notebooks:
+- `Model_Training.ipynb`: Original RoBERTa fine-tuning process.
+- `FLANT5-FT.ipynb`: Dataset preparation and fine-tuning for the summarization model.
+- `Advanced_Sentiment_Analytics.ipynb`: Initial exploration of keyword extraction and NER.

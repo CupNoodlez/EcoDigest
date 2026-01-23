@@ -1,12 +1,8 @@
 .venv/
 
 # Model checkpoints and training outputs
-models/
-*.pt
-*.bin
-*.ckpt
-*.pth
-*.safetensors
+Model_FLAN-T5/
+Model_ROBERTA-Sentiment/
 
 # Training logs
 logs/

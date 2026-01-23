@@ -3,14 +3,17 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, GenerationConfig
 import torch
 import os
 
+from pathlib import Path
+
 def run_summarization():
-    model_path = os.path.join(os.getcwd(), "FLANT5_fine-tuned")
-    data_path = os.path.join(os.getcwd(), "datasets", "dataset_test.csv")
+    current_script_path = Path(__file__).resolve().parent
+    model_path = current_script_path.parent / "Model_FLAN-T5"
+    data_path = current_script_path.parent / "datasets" / "dataset_test.csv"
     
-    if not os.path.exists(model_path):
+    if not model_path.exists():
         print(f"Error: Model path not found at {model_path}")
         return
-    if not os.path.exists(data_path):
+    if not data_path.exists():
         print(f"Error: Data file not found at {data_path}")
         return
 
