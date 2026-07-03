@@ -1,4 +1,4 @@
-#🌳 EcoDigest
+# 🌳 EcoDigest
 
 # 🧠 Sentiment & Consensus Analyzer
 
