@@ -1,3 +1,5 @@
+#🌳 EcoDigest
+
 # 🧠 Sentiment & Consensus Analyzer
 
 A multi-stage NLP pipeline designed to analyze environmental sentiment and extract representative consensus from public comments. The project leverages fine-tuned transformer models for classification and summarization, combined with semantic clustering for representative insight extraction.
